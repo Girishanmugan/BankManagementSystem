@@ -1,0 +1,68 @@
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+
+class AccountBank {
+    int accountNumber;
+    String accountHolderName;
+    double balance;
+    int cibilScore;
+    AccountBank next;
+
+    public AccountBank(int accountNumber, String accountHolderName, double initialDeposit) {
+        this.accountNumber = accountNumber;
+        this.accountHolderName = accountHolderName;
+        this.balance = initialDeposit;
+        this.cibilScore = 700;
+        this.next = null;
+    }
+
+    public void displayAccountDetails() {
+        JOptionPane.showMessageDialog(null, "Account Number: " + accountNumber + "\nAccount Holder: " 
+                                      + accountHolderName + "\nBalance: " + balance + "\nCIBIL Score: " + cibilScore);
+    }
+}
+
+class BankManagementSystem {
+    private AccountBank head = null;
+
+    public void createAccount(int accountNumber, String accountHolderName, double initialDeposit) {
+        if (findAccount(accountNumber) != null) {
+            JOptionPane.showMessageDialog(null, "Account with account number " + accountNumber + " already exists.");
+            return;
+        }
+        
+        AccountBank newAccount = new AccountBank(accountNumber, accountHolderName, initialDeposit);
+        if (head == null) {
+            head = newAccount;
+        } else {
+            AccountBank current = head;
+            while (current.next != null) {
+                current = current.next;
+            }
+            current.next = newAccount;
+        }
+        JOptionPane.showMessageDialog(null, "Account created successfully for " + accountHolderName);
+    }
+
+    public void displayAllAccounts() {
+        if (head == null) {
+            JOptionPane.showMessageDialog(null, "No accounts to display.");
+            return;
+        }
+        AccountBank current = head;
+        StringBuilder accountsInfo = new StringBuilder();
+        while (current != null) {
+            accountsInfo.append("Account Number: ").append(current.accountNumber).append("\nAccount Holder: ")
+                        .append(current.accountHolderName).append("\nBalance: ").append(current.balance)
+                        .append("\nCIBIL Score: ").append(current.cibilScore).append("\n\n");
+            current = current.next;
+        }
+        JOptionPane.showMessageDialog(null, accountsInfo.toString());
+    }
+
+    public void deposit(int accountNumber, double amount) {
+        AccountBank account = findAccount(accountNumber);
+        if (account != null) {
+            if (amount > 100000) {
+  

@@ -1,0 +1,194 @@
+import java.util.Scanner;
+
+class AccountBank {
+    int accountNumber;
+    String accountHolderName;
+    double balance;
+    int cibilScore; // New attribute for CIBIL score
+    AccountBank next; // Reference to the next account in the linked list
+
+    public AccountBank(int accountNumber, String accountHolderName, double initialDeposit) {
+        this.accountNumber = accountNumber;
+        this.accountHolderName = accountHolderName;
+        this.balance = initialDeposit;
+        this.cibilScore = 700; // Assign an initial CIBIL score of 700
+        this.next = null; // Set the next reference to null for now
+    }
+
+    // Display account details
+    public void displayAccountDetails() {
+        System.out.println("Account Number: " + accountNumber);
+        System.out.println("Account Holder: " + accountHolderName);
+        System.out.println("Balance: " + balance);
+        //System.out.println("CIBIL Score: " + cibilScore); // Display the CIBIL score
+    }
+}
+
+class BankManagementSystem {
+    private AccountBank head = null; // Head of the linked list
+
+    // Method to create a new account and add it to the list
+    public void createAccount(int accountNumber, String accountHolderName, double initialDeposit) {
+        // Check if the account number already exists
+        if (findAccount(accountNumber) != null) {
+            System.out.println("Account with account number " + accountNumber + " already exists.");
+            return;
+        }
+
+        AccountBank newAccount = new AccountBank(accountNumber, accountHolderName, initialDeposit);
+        if (head == null) {
+            head = newAccount;
+        } else {
+            AccountBank current = head;
+            while (current.next != null) {
+                current = current.next;
+            }
+            current.next = newAccount;
+        }
+        System.out.println(accountHolderName + ", you have created the account successfully!");
+    }
+
+    // Method to display all accounts
+    public void displayAllAccounts() {
+        if (head == null) {
+            System.out.println("No accounts to display.");
+            return;
+        }
+        AccountBank current = head;
+        while (current != null) {
+            current.displayAccountDetails();
+            System.out.println();
+            current = current.next;
+        }
+    }
+
+    // Deposit money into an account
+    public void deposit(int accountNumber, double amount) {
+        AccountBank account = findAccount(accountNumber);
+        if (account != null) {
+            if (amount > 100000) {
+                System.out.println("You are depositing more than ₹1,00,000. An additional ₹1,000 has been added to your account as a bonus!");
+                amount += 1000; // Add ₹1,000 bonus
+                account.cibilScore += 10; // Increase CIBIL score as a bonus for large deposits
+                System.out.println("Your CIBIL score has increased by 10 points.");
+            }
+            account.balance += amount;
+            account.cibilScore += 5; // Increase CIBIL score slightly for regular deposits
+            System.out.println("Amount deposited successfully! Your CIBIL score has increased.");
+        } else {
+            System.out.println("Account not found.");
+        }
+    }
+
+    // Withdraw money from an account
+    public void withdraw(int accountNumber, double amount) {
+        AccountBank account = findAccount(accountNumber);
+        if (account != null) {
+            if (amount > 50000) {
+                Scanner scanner = new Scanner(System.in);
+                System.out.println("The amount is too big, do you want to proceed further? (yes/no): ");
+                String choice = scanner.nextLine();
+                if (!choice.equalsIgnoreCase("yes")) {
+                    System.out.println("Transaction canceled.");
+                    return; // Exit the method without withdrawing
+                }
+            }
+
+            if (account.balance >= amount) {
+                account.balance -= amount;
+                account.cibilScore -= 5; // Decrease CIBIL score slightly for large withdrawals
+                System.out.println("Amount withdrawn successfully! Your CIBIL score has decreased slightly.");
+            } else {
+                System.out.println("Insufficient balance.");
+                account.cibilScore -= 10; // Decrease CIBIL score for unsuccessful withdrawals due to insufficient funds
+                System.out.println("Your CIBIL score has decreased due to insufficient balance.");
+            }
+        } else {
+            System.out.println("Account not found.");
+        }
+    }
+
+    // Find account by account number
+    private AccountBank findAccount(int accountNumber) {
+        AccountBank current = head;
+        while (current != null) {
+            if (current.accountNumber == accountNumber) {
+                return current;
+            }
+            current = current.next;
+        }
+        return null;
+    }
+
+    // Method to display CIBIL score of a specific account
+    public void displayCibilScore(int accountNumber) {
+        AccountBank account = findAccount(accountNumber);
+        if (account != null) {
+            System.out.println("CIBIL Score for Account " + accountNumber + ": " + account.cibilScore);
+        } else {
+            System.out.println("Account not found.");
+        }
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        BankManagementSystem bank = new BankManagementSystem();
+        int choice;
+
+        do {
+            System.out.println("\n--- Bank Management System ---");
+            System.out.println("1. Create Account");
+            System.out.println("2. Deposit");
+            System.out.println("3. Withdraw");
+            System.out.println("4. Display All Accounts");
+            System.out.println("5. Display CIBIL Score");
+            System.out.println("6. Exit");
+            System.out.print("Enter your choice: ");
+            choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter account number: ");
+                    int accountNumber = scanner.nextInt();
+                    scanner.nextLine(); // Consume newline
+                    System.out.print("Enter account holder name: ");
+                    String accountHolderName = scanner.nextLine();
+                    System.out.print("Enter initial deposit: ");
+                    double initialDeposit = scanner.nextDouble();
+                    bank.createAccount(accountNumber, accountHolderName, initialDeposit);
+                    break;
+                case 2:
+                    System.out.print("Enter account number: ");
+                    int accNumberForDeposit = scanner.nextInt();
+                    System.out.print("Enter amount to deposit: ");
+                    double depositAmount = scanner.nextDouble();
+                    bank.deposit(accNumberForDeposit, depositAmount);
+                    break;
+                case 3:
+                    System.out.print("Enter account number: ");
+                    int accNumberForWithdraw = scanner.nextInt();
+                    System.out.print("Enter amount to withdraw: ");
+                    double withdrawAmount = scanner.nextDouble();
+                    bank.withdraw(accNumberForWithdraw, withdrawAmount);
+                    break;
+                case 4:
+                    bank.displayAllAccounts();
+                    break;
+                case 5:
+                    System.out.print("Enter account number to display CIBIL score: ");
+                    int accountNumberForCibil = scanner.nextInt();
+                    bank.displayCibilScore(accountNumberForCibil); // Call to display CIBIL score
+                    break;
+                case 6:
+                    System.out.println("Exiting the system.");
+                    break;
+                default:
+                    System.out.println("Invalid choice.");
+            }
+        } while (choice != 6);
+
+        scanner.close();
+    }
+}
